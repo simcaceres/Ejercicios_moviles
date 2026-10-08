@@ -6,9 +6,9 @@ import androidx.room3.PrimaryKey
 @Entity(tableName = "resultados_quiz")
 data class ResultadoEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val nombreUsuario: String,
-    val fecha: String,
-    val puntuacionTotal: Int,
+    val nombreUsuario:String,
+    val fecha:String,
+    val puntuacionTotal:Int,
     val nivelEstres: String,
     val recomendacion: String
 )
