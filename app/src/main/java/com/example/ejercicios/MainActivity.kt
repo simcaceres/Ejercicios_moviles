@@ -3,13 +3,21 @@ package com.example.ejercicios
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.example.ejercicios.DAO.ResultadoEntity
+import com.example.ejercicios.ui.screens.*
 import com.example.ejercicios.ui.theme.EjerciciosTheme
+
+enum class Pantalla {
+    BIENVENIDA,
+    MENU_PRINCIPAL,
+    QUIZ,
+    RESULTADOS
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PantallaBienvenida()
+                    NavegacionApp()
                 }
             }
         }
@@ -28,60 +36,56 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PantallaBienvenida() {
-    var nombre by remember { mutableStateOf("") }
-    var apellido by remember { mutableStateOf("") }
+fun NavegacionApp() {
+    var pantallaActual by remember { mutableStateOf(Pantalla.BIENVENIDA) }
+    var nombreUsuario by remember { mutableStateOf("") }
+    var apellidoUsuario by remember { mutableStateOf("") }
+    var ultimoResultado by remember { mutableStateOf<ResultadoEntity?>(null) }
 
-    // Validación: El botón se activa solo si ambos campos tienen texto
-    val esValido = nombre.trim().isNotEmpty() && apellido.trim().isNotEmpty()
+    when (pantallaActual) {
+        Pantalla.BIENVENIDA -> {
+            PantallaBienvenida(
+                onComenzarClick = { nombre, apellido ->
+                    nombreUsuario = nombre
+                    apellidoUsuario = apellido
+                    pantallaActual = Pantalla.MENU_PRINCIPAL
+                }
+            )
+        }
+        Pantalla.MENU_PRINCIPAL -> {
+            PantallaMenuPrincipal(
+                nombreCompleto = "$nombreUsuario $apellidoUsuario",
+                ultimoResultado = ultimoResultado,
+                onEmpezarQuiz = { pantallaActual = Pantalla.QUIZ },
+                onVerResultados = { pantallaActual = Pantalla.RESULTADOS },
+                onSalir = { pantallaActual = Pantalla.BIENVENIDA }
+            )
+        }
+        Pantalla.QUIZ -> {
+            PantallaQuiz(
+                nombreUsuario = "$nombreUsuario $apellidoUsuario",
+                onQuizFinalizado = { resultado ->
+                    ultimoResultado = resultado
+                    pantallaActual = Pantalla.RESULTADOS
+                }
+            )
+        }
+        Pantalla.RESULTADOS -> {
+            val resultadoAMostrar = ultimoResultado ?: ResultadoEntity(
+                nombreUsuario = "$nombreUsuario $apellidoUsuario",
+                fecha = "14/10/2026",
+                puntajeNeurodesarrollo = 4,
+                puntajeDBT = 3,
+                puntajeAnimo = 5,
+                puntajeAdicciones = 2,
+                puntajeTotal = 14,
+                recomendacion = "Nivel óptimo. Continúa con tus rutinas habituales de autocuidado."
+            )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "¡Bienvenido!",
-            style = MaterialTheme.typography.headlineLarge
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Ingresa tus datos para continuar",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = apellido,
-            onValueChange = { apellido = it },
-            label = { Text("Apellido") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = { /* Aquí navegarás al menú principal */ },
-            enabled = esValido,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Comenzar")
+            PantallaResultados(
+                resultado = resultadoAMostrar,
+                onVolver = { pantallaActual = Pantalla.MENU_PRINCIPAL }
+            )
         }
     }
 }

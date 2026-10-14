@@ -39,6 +39,17 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
+    dependencies {
+        // --- Dependencia para Gráficos (MPAndroidChart) ---
+        implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+        // --- Otras dependencias necesarias de tu proyecto (Room) ---
+        val room_version = "2.6.1"
+        implementation("androidx.room:room-runtime:$room_version")
+        implementation("androidx.room:room-ktx:$room_version")
+        // ksp o kapt según cómo tengas configurado Room:
+        // ksp("androidx.room:room-compiler:$room_version")
+    }
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
